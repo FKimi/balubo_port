@@ -53,11 +53,16 @@ export function WorkCreate() {
     source_url: '',
     work_type: 'writing'
   });
-  const [analysis, setAnalysis] = useState<Analysis>(null);
+  const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [articleMetadata, setArticleMetadata] = useState<{
+    title: string;
+    description: string | null;
+    thumbnail_url: string | null;
+  } | null>(null);
 
   // URLが変更されたときに自動的にメタデータを取得
   useEffect(() => {
@@ -81,11 +86,19 @@ export function WorkCreate() {
             throw new Error(metadata.error);
           }
 
-          // 取得したデータで状態を更新
+          // 記事メタデータを設定
+          setArticleMetadata({
+            title: metadata.title,
+            description: metadata.description,
+            thumbnail_url: metadata.thumbnail_url || metadata.image
+          });
+
+          // サムネイル画像URLも設定
           setWorkData(prev => ({
             ...prev,
             title: metadata.title || prev.title,
             description: metadata.description || prev.description,
+            image_url: metadata.thumbnail_url || metadata.image || prev.image_url
           }));
 
           // AI分析を実行
@@ -207,6 +220,8 @@ export function WorkCreate() {
     }
   };
 
+  const isAnalyzing = extracting && !analysis;
+
   return (
     <Container size="md">
       <div className="py-8">
@@ -287,16 +302,49 @@ export function WorkCreate() {
 
             <div className="space-y-6">
               {workData.work_type === 'writing' && (
-                <FormInput
-                  id="source_url"
-                  label="作品URL"
-                  type="url"
-                  value={workData.source_url}
-                  onChange={(e) => setWorkData(prev => ({ ...prev, source_url: e.target.value }))}
-                  placeholder="https://example.com/your-work"
-                  icon={<LinkIcon size={20} className="text-neutral-400" />}
-                  helpText="URLを入力すると、タイトルや説明文を自動で取得します"
-                />
+                <>
+                  <FormInput
+                    id="source_url"
+                    label="作品URL"
+                    type="url"
+                    value={workData.source_url}
+                    onChange={(e) => setWorkData(prev => ({ ...prev, source_url: e.target.value }))}
+                    placeholder="https://example.com/your-work"
+                    icon={<LinkIcon size={20} className="text-neutral-400" />}
+                    helpText="URLを入力すると、タイトルや説明文を自動で取得します"
+                  />
+                  
+                  {/* 記事プレビューバナー */}
+                  {articleMetadata && articleMetadata.thumbnail_url && (
+                    <div className="mt-4">
+                      <img 
+                        src={articleMetadata.thumbnail_url} 
+                        alt="記事サムネイル"
+                        className="w-full h-auto object-contain rounded-lg border border-neutral-200 shadow-sm"
+                        style={{ maxHeight: '300px' }}
+                        onError={(e) => {
+                          // 画像読み込みエラー時に非表示にする
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* AI分析バナー */}
+                  <div className="mt-4 p-4 bg-primary-50 rounded-lg border border-primary-100">
+                    <div className="flex items-start">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-primary-900">AI分析</h3>
+                        <p className="text-sm text-primary-700 mt-1">
+                          URLを入力すると、AIがコンテンツを分析し、あなたの専門性や作品の特徴を可視化します
+                        </p>
+                      </div>
+                      {extracting && (
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-500"></div>
+                      )}
+                    </div>
+                  </div>
+                </>
               )}
 
               {workData.work_type === 'design' && (
@@ -380,7 +428,17 @@ export function WorkCreate() {
           </CardContent>
         </Card>
 
-        {analysis && (
+        {/* AI分析結果 */}
+        {isAnalyzing ? (
+          <Card className="mb-6">
+            <CardContent>
+              <div className="py-8 flex flex-col items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mb-4"></div>
+                <p className="text-neutral-600">AI分析中...</p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : analysis ? (
           <Card>
             <CardContent>
               <h2 className="text-xl font-bold text-neutral-900 mb-6">
@@ -401,7 +459,7 @@ export function WorkCreate() {
                 {/* 作品の特徴 */}
                 <div>
                   <h3 className="text-lg font-semibold text-neutral-900 mb-4">
-                    作品の特徴・魅力
+                    作品の特徴
                   </h3>
                   <div className="space-y-4">
                     <p className="text-neutral-600">{analysis.content_style.summary}</p>
@@ -420,7 +478,7 @@ export function WorkCreate() {
               </div>
             </CardContent>
           </Card>
-        )}
+        ) : null}
       </div>
     </Container>
   );

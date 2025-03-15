@@ -308,17 +308,17 @@ export function Dashboard() {
               
               <div className="flex items-center space-x-2">
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
                   onClick={handleTwitterConnect}
                   isLoading={loading}
                   className={user?.twitter_username ? 'bg-blue-50 text-blue-600' : ''}
                 >
                   <Twitter size={16} className="mr-2" />
-                  {user?.twitter_username ? 'X連携済み' : 'Xと連携'}
+                  {user?.twitter_username ? 'Twitter連携済み' : 'Twitterと連携'}
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
                   onClick={() => handleSocialConnect('instagram')}
                   disabled
@@ -327,7 +327,7 @@ export function Dashboard() {
                   Instagram
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
                   onClick={() => handleSocialConnect('facebook')}
                   disabled
@@ -511,7 +511,7 @@ export function Dashboard() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {analysis.style_summary.highlights.map((highlight, index) => (
-                        <Badge key={index} variant="accent">
+                        <Badge key={index} variant="primary">
                           {highlight}
                         </Badge>
                       ))}
@@ -844,7 +844,22 @@ export function Dashboard() {
                           <img
                             src={work.thumbnail_url}
                             alt={work.title}
-                            className="w-full h-full object-cover rounded-lg"
+                            className="w-full h-full object-contain bg-white rounded-lg border border-neutral-200"
+                            onError={(e) => {
+                              // 画像読み込みエラー時はデフォルト表示に切り替え
+                              (e.target as HTMLImageElement).style.display = 'none';
+                              (e.target as HTMLImageElement).parentElement!.innerHTML = `
+                                <div class="w-full h-full bg-neutral-100 rounded-lg flex items-center justify-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-400">
+                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <line x1="10" y1="9" x2="8" y2="9"></line>
+                                  </svg>
+                                </div>
+                              `;
+                            }}
                           />
                         ) : (
                           <div className="w-full h-full bg-neutral-100 rounded-lg flex items-center justify-center">
