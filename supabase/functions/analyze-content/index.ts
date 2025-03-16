@@ -29,7 +29,7 @@ interface AnalysisResponse {
   error?: string;
 }
 
-const GEMINI_API_KEY = '***REMOVED***';
+const GEMINI_API_KEY = 'AIzaSyBiWIbXXRT0wDqHl8VdChfLmmBN_VKuseQ';
 
 serve(async (req) => {
   // Handle CORS

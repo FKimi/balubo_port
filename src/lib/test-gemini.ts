@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const GEMINI_API_KEY = '***REMOVED***';
+const GEMINI_API_KEY = 'AIzaSyBiWIbXXRT0wDqHl8VdChfLmmBN_VKuseQ';
 
 export async function testGeminiAPI() {
   try {

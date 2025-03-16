@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 import { analyzeContent as geminiAnalyze } from './gemini';
 
-const LINKPREVIEW_API_KEY = '***REMOVED***';
+const LINKPREVIEW_API_KEY = '';
 
 export async function fetchMetadata(url: string) {
   try {
