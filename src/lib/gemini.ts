@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const GEMINI_API_KEY = '***REMOVED***';
+const GEMINI_API_KEY = ';
 
 interface ContentInput {
   title: string;
